@@ -11,10 +11,8 @@ function InitFramework()
     end
 end
 
--- Direkt beim Start initialisieren
 InitFramework()
 
--- Exporte bereitstellen
 exports('InitFramework', InitFramework)
 
 exports('GetFramework', function()
@@ -95,7 +93,6 @@ function Framework.IsBoss()
 end
 
 
--- Gemeinsame Hilfsfunktionen
 local function Trim(str)
     if type(str) ~= "string" then
         str = tostring(str)
@@ -107,9 +104,6 @@ local function Round(num)
     return math.floor(num + 0.5)
 end
 
-------------------------------------------------------------
--- DEFAULT MENU
-------------------------------------------------------------
 local GUI, DefaultMenuType, DefaultOpenedMenus, DefaultCurrentNS = {}, "default", 0, nil
 GUI.Time = 0
 local DefaultMenus = {}
@@ -122,7 +116,6 @@ function openDefaultMenu(namespace, name, data)
     DefaultCurrentNS = namespace
     DefaultOpenedMenus = DefaultOpenedMenus + 1
 
-    -- Nur erlaubte Felder in NUI schicken
     local uiData = {
         title = data.title,
         align = data.align,
@@ -136,7 +129,6 @@ function openDefaultMenu(namespace, name, data)
         data = uiData,
     })
 
-    -- Cursor optional aktivieren, standardmäßig false
     local cursor = data.cursor
     if cursor == nil then cursor = false end
     SetNuiFocus(true, cursor)
@@ -161,7 +153,6 @@ function closeDefaultMenu(namespace, name)
         name = name,
     })
 
-    -- Wenn keine Menüs mehr offen sind, Fokus entfernen
     if DefaultOpenedMenus == 0 then
         SetNuiFocus(false, false)
         SetNuiFocusKeepInput(false)
@@ -233,7 +224,6 @@ RegisterNUICallback("menu_change", function(data, cb)
     cb("OK")
 end)
 
--- Default keybinds
 RegisterCommand("menu_enter", function()
     if DefaultOpenedMenus > 0 and (GetGameTimer() - GUI.Time) > 200 then
         SendNUIMessage({ action = "controlPressed", control = "ENTER" })
@@ -276,7 +266,6 @@ RegisterCommand("menu_right", function()
     end
 end, false)
 
--- Keymapping
 RegisterKeyMapping("menu_enter", "Submit menu item", "keyboard", "RETURN")
 RegisterKeyMapping("menu_backspace", "Close menu", "keyboard", "BACK")
 RegisterKeyMapping("menu_up", "Menu up", "keyboard", "UP")
@@ -284,9 +273,6 @@ RegisterKeyMapping("menu_down", "Menu down", "keyboard", "DOWN")
 RegisterKeyMapping("menu_left", "Menu left", "keyboard", "LEFT")
 RegisterKeyMapping("menu_right", "Menu right", "keyboard", "RIGHT")
 
-------------------------------------------------------------
--- DIALOG MENU
-------------------------------------------------------------
 local DialogTimeouts, DialogOpened, DialogMenus = {}, {}, {}
 
 function openDialogMenu(namespace, name, data)
@@ -303,7 +289,7 @@ function openDialogMenu(namespace, name, data)
 
     local uiData = {
         title = data.title,
-        type = data.type or "default", -- 🔥 WICHTIG!
+        type = data.type or "default", 
         align = data.align,
         elements = data.elements
     }
@@ -383,9 +369,6 @@ RegisterNUICallback("menu_change", function(data, cb)
     cb("ok")
 end)
 
-------------------------------------------------------------
--- RESOURCE STOP HANDLER
-------------------------------------------------------------
 AddEventHandler("onResourceStop", function(resource)
     if GetCurrentResourceName() == resource then
         closeAllDefaultMenus()
@@ -399,11 +382,10 @@ end)
 
 
 
---Notify
 function ShowNotification(data)
     SendNUIMessage({
         action = "showNotify",
-        type = data.type or "info", -- "success", "error", "info"
+        type = data.type or "info", 
         title = data.title or "",
         text = data.text or "",
         time = data.time or Config.DefaultNotifyTime,
@@ -419,10 +401,8 @@ function ShowHelpNotification(data)
     local text = data.text or Config.DefaultHelpText
     local time = data.time or Config.DefaultNotifyTime
 
-    -- Wenn gleiche Hilfe bereits aktiv ist, nichts tun
     if activeHelpKey == key then return end
 
-    -- Neue Hilfe setzen
     activeHelpKey = key
 
     SendNUIMessage({
@@ -432,7 +412,6 @@ function ShowHelpNotification(data)
         time = time
     })
 
-    -- Zeitlich gesteuert zurücksetzen
     SetTimeout(time, function()
         if activeHelpKey == key then
             activeHelpKey = nil
